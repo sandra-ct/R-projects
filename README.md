@@ -18,4 +18,4 @@ MA plot comparing Sample 2 and Sample 4.
 
 ![maplot](https://user-images.githubusercontent.com/103966006/205519559-5e7d418a-e346-48ac-92d2-4606b0e340cd.png)
 
-There are more data points below the -1 Y-axis cutoff than the +1 Y-axis cutoff, suggesting a higher number of genes being downregulated rather than upregulated.
+There are a fairly equal amount of data points below the -1 Y-axis cutoff and above the +1 Y-axis cutoff, suggesting a fairly similar amount of genes being downregulated as well as upregulated. There may be more data points below, suggesting more downregulation.
