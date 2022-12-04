@@ -81,7 +81,6 @@ x2$samples$norm.factors <- 1
 x2$counts[,1] <- ceiling(x2$counts[,1]*0.05)
 x2$counts[,2] <- x2$counts[,2]*5
 
-colnames(x) = group
 par(mfrow=c(1,2))
 lcpm <- cpm(x2, log=TRUE)
 boxplot(lcpm, las=2, main="", col=cm.colors(16))
