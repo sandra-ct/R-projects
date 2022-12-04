@@ -4,12 +4,12 @@ Data obtained from: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE211059
 
 Data Normalization Visualization
 
-![00001e](https://user-images.githubusercontent.com/103966006/205519328-e8ec3607-c3d8-41f2-8c95-b95ad00ee679.png)
+![boxplot](https://user-images.githubusercontent.com/103966006/205521333-d22dba25-ccb0-4191-a7ab-e3dd5857fd8c.png)
 
 
 MDS Plot showing clustering between samples. The data was divided in two groups, "Rep1" and "Rep2" in the repository.
 
-![mds](https://user-images.githubusercontent.com/103966006/205519422-ffd7183c-9aa8-435e-8fa5-a411f6d9f82e.png)
+![mdsplot](https://user-images.githubusercontent.com/103966006/205521352-9e64279d-4218-4313-800a-6e119a930483.png)
 
 Samples 1, 2, 5, and 6 show clustering. There is also some suggestion of clustering of Rep1 data.
 
