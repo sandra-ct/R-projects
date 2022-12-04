@@ -84,12 +84,12 @@ x2$counts[,2] <- x2$counts[,2]*5
 colnames(x) = group
 par(mfrow=c(1,2))
 lcpm <- cpm(x2, log=TRUE)
-boxplot(lcpm, las=2, col=col, main="")
+boxplot(lcpm, las=2, main="", col=cm.colors(16))
 title(main="A. Example: Unnormalised data",ylab="Log-cpm")
 x2 <- calcNormFactors(x2)  
 x2$samples$norm.factors
 lcpm <- cpm(x2, log=TRUE)
-boxplot(lcpm, las=2, col=col, main="")
+boxplot(lcpm, las=2, main="", col=cm.colors(16))
 title(main="B. Example: Normalised data",ylab="Log-cpm")
 ```
 
@@ -97,10 +97,10 @@ title(main="B. Example: Normalised data",ylab="Log-cpm")
 lcpm <- cpm(x, log=TRUE)
 par(mfrow=c(1,2))
 col.group <- group
-levels(col.group) <-  brewer.pal(nlevels(col.group), "Set1")
+levels(col.group) <-  heat.colors(16)
 col.group <- as.character(col.group)
 col.lane <- lane
-levels(col.lane) <-  brewer.pal(nlevels(col.lane), "Set2")
+levels(col.lane) <-  topo.colors(16)
 col.lane <- as.character(col.lane)
 plotMDS(lcpm, labels=group, col=col.group)
 title(main="A. Sample groups")
