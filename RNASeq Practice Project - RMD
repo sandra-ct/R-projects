@@ -1,3 +1,5 @@
+A personal RNA-seq practice project with data from ncbi GEO mus musculus.
+
 ```{r}
 library(tidyverse)
 library(limma)
