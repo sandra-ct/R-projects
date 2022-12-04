@@ -1,0 +1,130 @@
+```{r}
+library(tidyverse)
+library(limma)
+library(edgeR)
+library(DESeq2)
+```
+
+Unzip files from URL:
+```{R}
+url <- "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE211059&format=file"
+utils::download.file(url, destfile="GSE211059_RAW.tar", mode="wb")
+utils::untar("GSE211059_RAW.tar", exdir = ".")
+```
+
+Load files:
+```{r}
+files <- c("GSM6448511_KO52_dnCEBP_RNAseq_rep1_Counts.tsv.gz", "GSM6448512_KO52_dnCEBP_RNAseq_rep2_Counts.tsv.gz", "GSM6448513_KO52_dnFOS_RNAseq_rep1_Counts.tsv.gz", "GSM6448514_KO52_dnFOS_RNAseq_rep2_Counts.tsv.gz", 
+"GSM6448515_KO52_EV_RNAseq_rep1_Counts.tsv.gz", "GSM6448516_KO52_EV_RNAseq_rep2_Counts.tsv.gz")
+```
+
+Reading and storing the individual datasets
+```{r}
+Sample1 <- read_table(files[1]) # Rep1
+Sample2 <- read_table(files[2]) # Rep2
+Sample3 <- read_table(files[3]) # Rep1
+Sample4 <- read_table(files[4]) # Rep2
+Sample5 <- read_table(files[5]) # Rep1
+Sample6 <- read_table(files[6]) # Rep2
+```
+
+Clean data
+```{r}
+Sample1 <- na.omit(Sample1)
+Sample2 <- na.omit(Sample2)
+Sample3 <- na.omit(Sample3)
+Sample4 <- na.omit(Sample4)
+Sample5 <- na.omit(Sample5)
+Sample6 <- na.omit(Sample6)
+```
+
+
+Pre-Processing
+```{r}
+x <- readDGE(files)
+class(x)
+dim(x)
+
+samplenames <- substring(colnames(x), 12, nchar(colnames(x)))
+samplenames
+
+colnames(x) <- samplenames
+group <- as.factor(c("Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6"))
+x$samples$group <- group
+lane <- as.factor(rep(c("Rep1","Rep2","Rep1","Rep2","Rep1","Rep2")))
+x$samples$lane <- lane
+x$samples
+```
+
+```{r}
+cpm <- cpm(x)
+lcpm <- cpm(x, log=TRUE)
+
+L <- mean(x$samples$lib.size) * 1e-6
+M <- median(x$samples$lib.size) * 1e-6
+c(L, M)
+
+table(rowSums(x$counts==0)==9) #table showing unexpressed genes; 
+#none found across all samples, suggests data was cleaned prior to upload
+
+keep.exprs <- filterByExpr(x, group=group)
+x <- x[keep.exprs,, keep.lib.sizes=FALSE]
+dim(x) #Filtered genes with low expression out
+
+x <- calcNormFactors(x, method = "TMM")
+x$samples$norm.factors
+
+x2 <- x
+x2$samples$norm.factors <- 1
+x2$counts[,1] <- ceiling(x2$counts[,1]*0.05)
+x2$counts[,2] <- x2$counts[,2]*5
+
+colnames(x) = group
+par(mfrow=c(1,2))
+lcpm <- cpm(x2, log=TRUE)
+boxplot(lcpm, las=2, col=col, main="")
+title(main="A. Example: Unnormalised data",ylab="Log-cpm")
+x2 <- calcNormFactors(x2)  
+x2$samples$norm.factors
+lcpm <- cpm(x2, log=TRUE)
+boxplot(lcpm, las=2, col=col, main="")
+title(main="B. Example: Normalised data",ylab="Log-cpm")
+```
+
+```{r}
+lcpm <- cpm(x, log=TRUE)
+par(mfrow=c(1,2))
+col.group <- group
+levels(col.group) <-  brewer.pal(nlevels(col.group), "Set1")
+col.group <- as.character(col.group)
+col.lane <- lane
+levels(col.lane) <-  brewer.pal(nlevels(col.lane), "Set2")
+col.lane <- as.character(col.lane)
+plotMDS(lcpm, labels=group, col=col.group)
+title(main="A. Sample groups")
+plotMDS(lcpm, labels=lane, col=col.lane, dim=c(3,4))
+title(main="B. Sequencing lanes")
+```
+
+
+```{r}
+design <- model.matrix(~0+group)
+colnames(design) <- gsub("group", "", colnames(design))
+design
+
+# Let's visualize the comparative relationship between Samples 1 and 3 (Rep1)
+contr.matrix <- makeContrasts(
+  Sample2vs4 = Sample2 - Sample4, 
+  levels = colnames(design))
+
+par(mfrow=c(1,2))
+v <- voom(x2, design = NULL, plot=TRUE)
+voom_df <- as.data.frame(v$E)
+
+vfit <- lmFit(v, design)
+vfit <- contrasts.fit(vfit, contrasts=contr.matrix)
+
+limma::plotMA(vfit, xlab = "Average log-expression",
+       ylab = "log-fold-change")
+
+```
